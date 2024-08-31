@@ -1,0 +1,49 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Function to create a highlight for a player
+local function createHighlight(player)
+    local char = player.Character
+    if char then
+        local highlight = Instance.new("Highlight")
+        highlight.FillColor = Color3.fromRGB(0, 255, 0)  -- Green color
+        highlight.FillTransparency = 0.5
+        highlight.Adornee = char
+
+        -- Parent the highlight to the character
+        highlight.Parent = char
+
+        -- Connect the player leaving to remove the highlight
+        player.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                highlight:Destroy()
+            end
+        end)
+    end
+end
+
+-- Function to update highlights for all players
+local function updateHighlights()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            createHighlight(player)
+        end
+    end
+end
+
+-- Call the update function to add highlights to all existing players
+updateHighlights()
+
+-- Connect to the PlayerAdded event to add highlights when new players join
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        createHighlight(player)
+    end)
+end)
+
+-- Connect to the CharacterAdded event for existing players
+for _, player in ipairs(Players:GetPlayers()) do
+    player.CharacterAdded:Connect(function()
+        createHighlight(player)
+    end)
+end
